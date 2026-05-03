@@ -1,4 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { QueryProvider } from "../components/query-provider";
+import { Toaster } from "../components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -29,8 +31,8 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "TikTok Accounts Manager" },
+      { name: "description", content: "Gerencie e organize suas contas TikTok para venda — monetização, shop e categorias." },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Lovable App" },
       { property: "og:description", content: "Lovable Generated Project" },
@@ -65,5 +67,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <QueryProvider>
+      <Outlet />
+      <Toaster theme="dark" />
+    </QueryProvider>
+  );
 }
