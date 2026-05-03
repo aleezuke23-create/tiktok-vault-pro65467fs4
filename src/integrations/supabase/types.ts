@@ -14,7 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accounts: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          category_id: string | null
+          country_code: string | null
+          created_at: string
+          display_name: string | null
+          email: string
+          followers: number
+          following: number
+          id: string
+          last_synced_at: string | null
+          likes: number
+          notes: string | null
+          password: string
+          tiktok_url: string
+          updated_at: string
+          username: string | null
+          videos: number
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          category_id?: string | null
+          country_code?: string | null
+          created_at?: string
+          display_name?: string | null
+          email: string
+          followers?: number
+          following?: number
+          id?: string
+          last_synced_at?: string | null
+          likes?: number
+          notes?: string | null
+          password: string
+          tiktok_url: string
+          updated_at?: string
+          username?: string | null
+          videos?: number
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          category_id?: string | null
+          country_code?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          followers?: number
+          following?: number
+          id?: string
+          last_synced_at?: string | null
+          likes?: number
+          notes?: string | null
+          password?: string
+          tiktok_url?: string
+          updated_at?: string
+          username?: string | null
+          videos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
