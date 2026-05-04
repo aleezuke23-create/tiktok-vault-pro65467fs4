@@ -24,6 +24,7 @@ function Home() {
   const [filterCountry, setFilterCountry] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("created");
+  const [blurMode, setBlurMode] = useState(false);
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
