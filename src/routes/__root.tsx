@@ -34,11 +34,15 @@ export const Route = createRootRoute({
       { title: "TikTok Accounts Manager" },
       { name: "description", content: "Gerencie e organize suas contas TikTok para venda — monetização, shop e categorias." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "TikTok Accounts Manager" },
+      { property: "og:description", content: "Gerencie e organize suas contas TikTok para venda — monetização, shop e categorias." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "TikTok Accounts Manager" },
+      { name: "twitter:description", content: "Gerencie e organize suas contas TikTok para venda — monetização, shop e categorias." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/80ac33f0-b88c-44e0-9c35-d5371605ebe5/id-preview-e784cdc4--14602e68-eeb1-42aa-9c12-75f795a36614.lovable.app-1777853906113.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/80ac33f0-b88c-44e0-9c35-d5371605ebe5/id-preview-e784cdc4--14602e68-eeb1-42aa-9c12-75f795a36614.lovable.app-1777853906113.png" },
     ],
     links: [
       {
