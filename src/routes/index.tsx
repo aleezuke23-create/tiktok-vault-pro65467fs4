@@ -162,7 +162,7 @@ function Home() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((a) => (
-              <AccountCard key={a.id} account={a} category={a.category_id ? catMap.get(a.category_id) ?? null : null} onEdit={openEdit} />
+              <AccountCard key={a.id} account={a} category={a.category_id ? catMap.get(a.category_id) ?? null : null} onEdit={openEdit} blurSensitive={blurMode} />
             ))}
           </div>
         )}
