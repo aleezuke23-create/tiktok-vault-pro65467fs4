@@ -95,42 +95,44 @@ function Home() {
           <StatCard icon={<Users className="h-4 w-4 text-primary" />} label="Total seguidores" value={formatCount(stats.followers)} />
         </div>
 
-        <Card className="p-3 flex flex-col md:flex-row gap-2">
-          <div className="relative flex-1">
+        <Card className="p-3 flex flex-col gap-2">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar nome, @ ou email..." className="pl-9" />
           </div>
-          <Select value={filterCat} onValueChange={setFilterCat}>
-            <SelectTrigger className="md:w-40"><SelectValue placeholder="Categoria" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas categorias</SelectItem>
-              {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={filterCountry} onValueChange={setFilterCountry}>
-            <SelectTrigger className="md:w-40"><SelectValue placeholder="País" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos países</SelectItem>
-              {COUNTRIES.map((c) => <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="md:w-40"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos status</SelectItem>
-              <SelectItem value="monetized">Monetizadas</SelectItem>
-              <SelectItem value="pending">Pendentes</SelectItem>
-              <SelectItem value="shop">Com Shop</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="md:w-40"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="created">Mais recentes</SelectItem>
-              <SelectItem value="followers">Mais seguidores</SelectItem>
-              <SelectItem value="likes">Mais likes</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <Select value={filterCat} onValueChange={setFilterCat}>
+              <SelectTrigger><SelectValue placeholder="Categoria" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas categorias</SelectItem>
+                {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterCountry} onValueChange={setFilterCountry}>
+              <SelectTrigger><SelectValue placeholder="País" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos países</SelectItem>
+                {COUNTRIES.map((c) => <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos status</SelectItem>
+                <SelectItem value="monetized">Monetizadas</SelectItem>
+                <SelectItem value="pending">Pendentes</SelectItem>
+                <SelectItem value="shop">Com Shop</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created">Mais recentes</SelectItem>
+                <SelectItem value="followers">Mais seguidores</SelectItem>
+                <SelectItem value="likes">Mais likes</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </Card>
 
         {isLoading ? (
