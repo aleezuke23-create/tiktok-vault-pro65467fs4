@@ -64,29 +64,31 @@ function Home() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/30 backdrop-blur sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-lg bg-primary/15 flex items-center justify-center">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-9 w-9 shrink-0 rounded-lg bg-primary/15 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold leading-tight">TikTok Accounts</h1>
-              <p className="text-xs text-muted-foreground">Gerenciador para venda</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold leading-tight truncate">TikTok Accounts</h1>
+              <p className="text-[11px] sm:text-xs text-muted-foreground truncate">Gerenciador para venda</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setCatDialogOpen(true)}>
-              <Tags className="h-4 w-4 mr-2" /> Categorias
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <Button variant="outline" size="sm" onClick={() => setCatDialogOpen(true)} className="px-2 sm:px-3">
+              <Tags className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Categorias</span>
             </Button>
-            <Button size="sm" onClick={openNew}>
-              <Plus className="h-4 w-4 mr-2" /> Nova conta
+            <Button size="sm" onClick={openNew} className="px-2 sm:px-3">
+              <Plus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Nova conta</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 pb-24 sm:pb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           <StatCard icon={<Users className="h-4 w-4" />} label="Contas" value={String(stats.total)} />
           <StatCard icon={<DollarSign className="h-4 w-4 text-success" />} label="Monetizadas" value={String(stats.monetized)} />
           <StatCard icon={<ShoppingBag className="h-4 w-4 text-success" />} label="Com Shop" value={String(stats.shop)} />
