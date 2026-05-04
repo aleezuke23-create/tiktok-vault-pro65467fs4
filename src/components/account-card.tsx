@@ -16,9 +16,10 @@ type Props = {
   account: Account;
   category: Category | null;
   onEdit: (a: Account) => void;
+  blurSensitive?: boolean;
 };
 
-export function AccountCard({ account, category, onEdit }: Props) {
+export function AccountCard({ account, category, onEdit, blurSensitive = false }: Props) {
   const [showPwd, setShowPwd] = useState(false);
   const del = useDeleteAccount();
   const country = getCountry(account.country_code);
@@ -49,13 +50,15 @@ export function AccountCard({ account, category, onEdit }: Props) {
         </div>
       )}
       <div className="flex items-start gap-3">
-        <Avatar className="h-14 w-14 ring-1 ring-border">
+        <Avatar className={`h-14 w-14 ring-1 ring-border transition ${blurSensitive ? "blur-md" : ""}`}>
           <AvatarImage src={account.avatar_url ?? undefined} />
           <AvatarFallback>{(account.display_name ?? account.email)[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <div className="font-semibold truncate">{account.display_name ?? "—"}</div>
-          <div className="text-sm text-muted-foreground truncate">
+          <div className={`font-semibold truncate transition ${blurSensitive ? "blur-sm select-none" : ""}`}>
+            {account.display_name ?? "—"}
+          </div>
+          <div className={`text-sm text-muted-foreground truncate transition ${blurSensitive ? "blur-sm select-none" : ""}`}>
             {account.username ? `@${account.username}` : "sem perfil carregado"}
           </div>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
@@ -102,7 +105,7 @@ export function AccountCard({ account, category, onEdit }: Props) {
       <div className="space-y-1.5 text-xs bg-muted/40 rounded-md p-2">
         <div className="flex items-center justify-between gap-2">
           <span className="text-muted-foreground shrink-0">Email:</span>
-          <span className="font-mono truncate flex-1 text-right">{account.email}</span>
+          <span className={`font-mono truncate flex-1 text-right transition ${blurSensitive ? "blur-sm select-none" : ""}`}>{account.email}</span>
           <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copy(account.email, "Email")}>
             <Copy className="h-3 w-3" />
           </Button>

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { COUNTRIES, formatCount } from "@/lib/countries";
-import { Plus, Search, Tags, Users, DollarSign, ShoppingBag, Sparkles } from "lucide-react";
+import { Plus, Search, Tags, Users, DollarSign, ShoppingBag, Sparkles, Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -24,6 +24,7 @@ function Home() {
   const [filterCountry, setFilterCountry] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("created");
+  const [blurMode, setBlurMode] = useState(false);
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
 
@@ -75,6 +76,16 @@ function Home() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <Button
+              variant={blurMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBlurMode((v) => !v)}
+              className="px-2 sm:px-3"
+              title={blurMode ? "Mostrar dados" : "Borrar dados sensíveis"}
+            >
+              {blurMode ? <EyeOff className="h-4 w-4 sm:mr-2" /> : <Eye className="h-4 w-4 sm:mr-2" />}
+              <span className="hidden sm:inline">{blurMode ? "Mostrando" : "Borrar"}</span>
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setCatDialogOpen(true)} className="px-2 sm:px-3">
               <Tags className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Categorias</span>
@@ -151,7 +162,7 @@ function Home() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((a) => (
-              <AccountCard key={a.id} account={a} category={a.category_id ? catMap.get(a.category_id) ?? null : null} onEdit={openEdit} />
+              <AccountCard key={a.id} account={a} category={a.category_id ? catMap.get(a.category_id) ?? null : null} onEdit={openEdit} blurSensitive={blurMode} />
             ))}
           </div>
         )}
