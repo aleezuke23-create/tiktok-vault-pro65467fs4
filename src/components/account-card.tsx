@@ -37,8 +37,17 @@ export function AccountCard({ account, category, onEdit }: Props) {
     }
   };
 
+  const statusBorder = monetized
+    ? "border-success/60 ring-1 ring-success/30"
+    : "border-warning/40";
+
   return (
-    <Card className="p-4 flex flex-col gap-3 hover:border-primary/50 transition-colors">
+    <Card className={`relative p-4 flex flex-col gap-3 transition-all hover:-translate-y-0.5 ${statusBorder}`}>
+      {monetized && (
+        <div className="absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-success text-success-foreground text-[10px] font-bold shadow-md animate-pulse">
+          ✓ MONETIZED
+        </div>
+      )}
       <div className="flex items-start gap-3">
         <Avatar className="h-14 w-14 ring-1 ring-border">
           <AvatarImage src={account.avatar_url ?? undefined} />
