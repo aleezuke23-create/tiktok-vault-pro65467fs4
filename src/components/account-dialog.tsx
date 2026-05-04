@@ -35,6 +35,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
   const [loading, setLoading] = useState(false);
   const [newCat, setNewCat] = useState("");
   const [showNewCat, setShowNewCat] = useState(false);
+  const [scrapeError, setScrapeError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -66,16 +67,20 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
   const handleLoad = async () => {
     if (!tiktokUrl) { toast.error("Cole o link do perfil"); return; }
     setLoading(true);
+    setScrapeError(null);
     try {
       const res = await fetchProfile({ data: { url: tiktokUrl } });
       if (res.ok) {
         setProfile(res.profile);
         toast.success("Perfil carregado");
       } else {
+        setScrapeError(res.error);
         toast.error(res.error);
       }
     } catch {
-      toast.error("Erro ao buscar perfil");
+      const msg = "Erro ao buscar perfil. Verifique sua conexão.";
+      setScrapeError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -151,6 +156,17 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
               </Button>
             </div>
           </div>
+
+          {scrapeError && (
+            <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive flex gap-2">
+              <span>⚠️</span>
+              <div className="flex-1">
+                <div className="font-medium">Não foi possível carregar o perfil</div>
+                <div className="text-xs mt-0.5 opacity-90">{scrapeError}</div>
+                <div className="text-xs mt-1 opacity-75">Você pode salvar mesmo assim e preencher os dados manualmente depois.</div>
+              </div>
+            </div>
+          )}
 
           {profile && (
             <div className="flex items-center gap-3 rounded-lg border bg-muted/40 p-3">
