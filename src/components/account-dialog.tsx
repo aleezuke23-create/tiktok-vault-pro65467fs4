@@ -99,6 +99,13 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
     }
   };
 
+  const normalizeTiktokUrl = (input: string): string => {
+    const t = input.trim();
+    if (/^https?:\/\//i.test(t)) return t;
+    const handle = t.replace(/^@/, "");
+    return `https://www.tiktok.com/@${handle}`;
+  };
+
   const handleSave = async () => {
     if (!email || !password || !tiktokUrl) {
       toast.error("Preencha email, senha e link"); return;
@@ -106,7 +113,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
     try {
       await upsert.mutateAsync({
         id: account?.id,
-        email, password, tiktok_url: tiktokUrl,
+        email, password, tiktok_url: normalizeTiktokUrl(tiktokUrl),
         category_id: categoryId, country_code: country,
         notes: notes || null,
         username: profile?.username ?? null,
