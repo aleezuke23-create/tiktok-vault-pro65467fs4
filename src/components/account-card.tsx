@@ -16,9 +16,10 @@ type Props = {
   account: Account;
   category: Category | null;
   onEdit: (a: Account) => void;
+  blurSensitive?: boolean;
 };
 
-export function AccountCard({ account, category, onEdit }: Props) {
+export function AccountCard({ account, category, onEdit, blurSensitive = false }: Props) {
   const [showPwd, setShowPwd] = useState(false);
   const del = useDeleteAccount();
   const country = getCountry(account.country_code);
