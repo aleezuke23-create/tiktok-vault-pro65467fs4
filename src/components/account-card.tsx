@@ -50,13 +50,15 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false }
         </div>
       )}
       <div className="flex items-start gap-3">
-        <Avatar className="h-14 w-14 ring-1 ring-border">
+        <Avatar className={`h-14 w-14 ring-1 ring-border transition ${blurSensitive ? "blur-md" : ""}`}>
           <AvatarImage src={account.avatar_url ?? undefined} />
           <AvatarFallback>{(account.display_name ?? account.email)[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <div className="font-semibold truncate">{account.display_name ?? "—"}</div>
-          <div className="text-sm text-muted-foreground truncate">
+          <div className={`font-semibold truncate transition ${blurSensitive ? "blur-sm select-none" : ""}`}>
+            {account.display_name ?? "—"}
+          </div>
+          <div className={`text-sm text-muted-foreground truncate transition ${blurSensitive ? "blur-sm select-none" : ""}`}>
             {account.username ? `@${account.username}` : "sem perfil carregado"}
           </div>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
