@@ -105,7 +105,7 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false }
       <div className="space-y-1.5 text-xs bg-muted/40 rounded-md p-2">
         <div className="flex items-center justify-between gap-2">
           <span className="text-muted-foreground shrink-0">Email:</span>
-          <span className="font-mono truncate flex-1 text-right">{account.email}</span>
+          <span className={`font-mono truncate flex-1 text-right transition ${blurSensitive ? "blur-sm select-none" : ""}`}>{account.email}</span>
           <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copy(account.email, "Email")}>
             <Copy className="h-3 w-3" />
           </Button>
