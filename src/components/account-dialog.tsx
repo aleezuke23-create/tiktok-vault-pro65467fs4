@@ -157,6 +157,17 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
             </div>
           </div>
 
+          {scrapeError && (
+            <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive flex gap-2">
+              <span>⚠️</span>
+              <div className="flex-1">
+                <div className="font-medium">Não foi possível carregar o perfil</div>
+                <div className="text-xs mt-0.5 opacity-90">{scrapeError}</div>
+                <div className="text-xs mt-1 opacity-75">Você pode salvar mesmo assim e preencher os dados manualmente depois.</div>
+              </div>
+            </div>
+          )}
+
           {profile && (
             <div className="flex items-center gap-3 rounded-lg border bg-muted/40 p-3">
               <Avatar className="h-14 w-14">
