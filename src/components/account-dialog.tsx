@@ -67,16 +67,20 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
   const handleLoad = async () => {
     if (!tiktokUrl) { toast.error("Cole o link do perfil"); return; }
     setLoading(true);
+    setScrapeError(null);
     try {
       const res = await fetchProfile({ data: { url: tiktokUrl } });
       if (res.ok) {
         setProfile(res.profile);
         toast.success("Perfil carregado");
       } else {
+        setScrapeError(res.error);
         toast.error(res.error);
       }
     } catch {
-      toast.error("Erro ao buscar perfil");
+      const msg = "Erro ao buscar perfil. Verifique sua conexão.";
+      setScrapeError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
