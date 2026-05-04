@@ -165,9 +165,9 @@ function Home() {
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <Card className="p-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">{icon}<span>{label}</span></div>
-      <div className="text-2xl font-bold mt-1">{value}</div>
+    <Card className="p-3 sm:p-4">
+      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-muted-foreground">{icon}<span className="truncate">{label}</span></div>
+      <div className="text-xl sm:text-2xl font-bold mt-1">{value}</div>
     </Card>
   );
 }
