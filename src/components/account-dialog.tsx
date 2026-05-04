@@ -147,14 +147,15 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Link do TikTok</Label>
+            <Label>Link do TikTok ou @username</Label>
             <div className="flex gap-2">
-              <Input value={tiktokUrl} onChange={(e) => setTiktokUrl(e.target.value)} placeholder="https://tiktok.com/@usuario" />
+              <Input value={tiktokUrl} onChange={(e) => setTiktokUrl(e.target.value)} placeholder="@usuario  ou  https://tiktok.com/@usuario" />
               <Button type="button" onClick={handleLoad} disabled={loading} variant="secondary">
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 <span className="ml-2 hidden sm:inline">Carregar</span>
               </Button>
             </div>
+            <p className="text-[11px] text-muted-foreground">Cole o link completo ou apenas o @username — vamos buscar automaticamente.</p>
           </div>
 
           {scrapeError && (
