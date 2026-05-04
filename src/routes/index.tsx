@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { COUNTRIES, formatCount } from "@/lib/countries";
-import { Plus, Search, Tags, Users, DollarSign, ShoppingBag, Sparkles } from "lucide-react";
+import { Plus, Search, Tags, Users, DollarSign, ShoppingBag, Sparkles, Eye, EyeOff } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: Home });
 
