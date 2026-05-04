@@ -76,6 +76,16 @@ function Home() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <Button
+              variant={blurMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setBlurMode((v) => !v)}
+              className="px-2 sm:px-3"
+              title={blurMode ? "Mostrar dados" : "Borrar dados sensíveis"}
+            >
+              {blurMode ? <EyeOff className="h-4 w-4 sm:mr-2" /> : <Eye className="h-4 w-4 sm:mr-2" />}
+              <span className="hidden sm:inline">{blurMode ? "Mostrando" : "Borrar"}</span>
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setCatDialogOpen(true)} className="px-2 sm:px-3">
               <Tags className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Categorias</span>
