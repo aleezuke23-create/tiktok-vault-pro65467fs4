@@ -4,6 +4,7 @@ import { useAccounts, useAutoSyncStaleAccounts, useCategories, type Account } fr
 import { AccountCard } from "@/components/account-card";
 import { AccountDialog } from "@/components/account-dialog";
 import { CategoriesDialog } from "@/components/categories-dialog";
+import { MonetizationChart } from "@/components/monetization-chart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
