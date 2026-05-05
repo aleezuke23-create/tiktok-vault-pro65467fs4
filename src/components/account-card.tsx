@@ -22,6 +22,7 @@ type Props = {
 export function AccountCard({ account, category, onEdit, blurSensitive = false }: Props) {
   const [showPwd, setShowPwd] = useState(false);
   const del = useDeleteAccount();
+  const refresh = useRefreshAccountStats();
   const country = getCountry(account.country_code);
 
   const monetized = account.followers >= MONETIZE_THRESHOLD;
