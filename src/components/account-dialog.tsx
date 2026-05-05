@@ -125,6 +125,9 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
         following: profile?.following ?? 0,
         videos: profile?.videos ?? 0,
         last_synced_at: profile ? new Date().toISOString() : null,
+        monetized_at:
+          account?.monetized_at ??
+          ((profile?.followers ?? 0) >= 10000 ? new Date().toISOString() : null),
       });
       toast.success(account ? "Conta atualizada" : "Conta adicionada");
       onOpenChange(false);
