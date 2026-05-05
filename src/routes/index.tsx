@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useAccounts, useCategories, type Account } from "@/hooks/use-accounts";
+import { useAccounts, useAutoSyncStaleAccounts, useCategories, type Account } from "@/hooks/use-accounts";
 import { AccountCard } from "@/components/account-card";
 import { AccountDialog } from "@/components/account-dialog";
 import { CategoriesDialog } from "@/components/categories-dialog";
@@ -27,6 +27,7 @@ function Home() {
   const [blurMode, setBlurMode] = useState(false);
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
+  useAutoSyncStaleAccounts(accounts);
 
   const filtered = useMemo(() => {
     let rows = [...accounts];

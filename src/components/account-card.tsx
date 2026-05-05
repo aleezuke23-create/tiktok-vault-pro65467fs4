@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type { Account, Category } from "@/hooks/use-accounts";
-import { useDeleteAccount } from "@/hooks/use-accounts";
+import { useDeleteAccount, useRefreshAccountStats } from "@/hooks/use-accounts";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye, EyeOff, Copy, Trash2, Pencil, ExternalLink, Heart, Users, ShoppingBag, DollarSign } from "lucide-react";
+import { Eye, EyeOff, Copy, Trash2, Pencil, ExternalLink, Heart, Users, ShoppingBag, DollarSign, RefreshCw } from "lucide-react";
 import { getCountry, formatCount } from "@/lib/countries";
 import { toast } from "sonner";
 
@@ -22,6 +22,7 @@ type Props = {
 export function AccountCard({ account, category, onEdit, blurSensitive = false }: Props) {
   const [showPwd, setShowPwd] = useState(false);
   const del = useDeleteAccount();
+  const refresh = useRefreshAccountStats();
   const country = getCountry(account.country_code);
 
   const monetized = account.followers >= MONETIZE_THRESHOLD;
@@ -77,7 +78,28 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false }
           <Heart className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium">{formatCount(account.likes)}</span>
         </div>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-7 w-7 ml-auto"
+          title={account.last_synced_at ? `Atualizado ${new Date(account.last_synced_at).toLocaleString()}` : "Nunca sincronizado"}
+          onClick={() => {
+            toast.promise(refresh.mutateAsync(account), {
+              loading: "Atualizando...",
+              success: "Stats atualizados",
+              error: (e) => e?.message ?? "Falha ao atualizar",
+            });
+          }}
+          disabled={refresh.isPending}
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${refresh.isPending ? "animate-spin" : ""}`} />
+        </Button>
       </div>
+      {account.last_synced_at && (
+        <div className="text-[10px] text-muted-foreground -mt-1">
+          Sync: {new Date(account.last_synced_at).toLocaleString()}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-1.5">
         <Badge
