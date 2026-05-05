@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type { Account, Category } from "@/hooks/use-accounts";
-import { useDeleteAccount } from "@/hooks/use-accounts";
+import { useDeleteAccount, useRefreshAccountStats } from "@/hooks/use-accounts";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye, EyeOff, Copy, Trash2, Pencil, ExternalLink, Heart, Users, ShoppingBag, DollarSign } from "lucide-react";
+import { Eye, EyeOff, Copy, Trash2, Pencil, ExternalLink, Heart, Users, ShoppingBag, DollarSign, RefreshCw } from "lucide-react";
 import { getCountry, formatCount } from "@/lib/countries";
 import { toast } from "sonner";
 
