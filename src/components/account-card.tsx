@@ -78,7 +78,28 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false }
           <Heart className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium">{formatCount(account.likes)}</span>
         </div>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-7 w-7 ml-auto"
+          title={account.last_synced_at ? `Atualizado ${new Date(account.last_synced_at).toLocaleString()}` : "Nunca sincronizado"}
+          onClick={() => {
+            toast.promise(refresh.mutateAsync(account), {
+              loading: "Atualizando...",
+              success: "Stats atualizados",
+              error: (e) => e?.message ?? "Falha ao atualizar",
+            });
+          }}
+          disabled={refresh.isPending}
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${refresh.isPending ? "animate-spin" : ""}`} />
+        </Button>
       </div>
+      {account.last_synced_at && (
+        <div className="text-[10px] text-muted-foreground -mt-1">
+          Sync: {new Date(account.last_synced_at).toLocaleString()}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-1.5">
         <Badge
