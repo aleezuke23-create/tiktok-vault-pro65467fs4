@@ -108,6 +108,8 @@ function Home() {
           <StatCard icon={<Users className="h-4 w-4 text-primary" />} label="Total seguidores" value={formatCount(stats.followers)} />
         </div>
 
+        <MonetizationChart accounts={accounts} />
+
         <Card className="p-3 flex flex-col gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
