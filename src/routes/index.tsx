@@ -4,6 +4,7 @@ import { useAccounts, useAutoSyncStaleAccounts, useCategories, type Account } fr
 import { AccountCard } from "@/components/account-card";
 import { AccountDialog } from "@/components/account-dialog";
 import { CategoriesDialog } from "@/components/categories-dialog";
+import { MonetizationChart } from "@/components/monetization-chart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -106,6 +107,8 @@ function Home() {
           <StatCard icon={<ShoppingBag className="h-4 w-4 text-success" />} label="Com Shop" value={String(stats.shop)} />
           <StatCard icon={<Users className="h-4 w-4 text-primary" />} label="Total seguidores" value={formatCount(stats.followers)} />
         </div>
+
+        <MonetizationChart accounts={accounts} />
 
         <Card className="p-3 flex flex-col gap-2">
           <div className="relative">

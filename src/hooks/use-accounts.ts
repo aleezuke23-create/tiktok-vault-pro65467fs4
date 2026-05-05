@@ -107,6 +107,9 @@ export function useRefreshAccountStats() {
       const res = await fetchProfile({ data: { url: account.tiktok_url } });
       if (!res.ok) throw new Error(res.error);
       const p = res.profile;
+      const nowIso = new Date().toISOString();
+      const monetizedAt =
+        !account.monetized_at && p.followers >= 10000 ? nowIso : account.monetized_at ?? null;
       const { error } = await supabase
         .from("accounts")
         .update({
@@ -118,8 +121,9 @@ export function useRefreshAccountStats() {
           likes: p.likes,
           following: p.following,
           videos: p.videos,
-          last_synced_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          monetized_at: monetizedAt,
+          last_synced_at: nowIso,
+          updated_at: nowIso,
         } as TablesUpdate<"accounts">)
         .eq("id", account.id);
       if (error) throw error;
