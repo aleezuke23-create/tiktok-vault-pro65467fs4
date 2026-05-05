@@ -27,6 +27,7 @@ function Home() {
   const [blurMode, setBlurMode] = useState(false);
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
+  useAutoSyncStaleAccounts(accounts);
 
   const filtered = useMemo(() => {
     let rows = [...accounts];
