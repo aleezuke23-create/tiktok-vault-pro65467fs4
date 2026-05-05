@@ -28,6 +28,7 @@ export type Database = {
           id: string
           last_synced_at: string | null
           likes: number
+          monetized_at: string | null
           notes: string | null
           password: string
           tiktok_url: string
@@ -48,6 +49,7 @@ export type Database = {
           id?: string
           last_synced_at?: string | null
           likes?: number
+          monetized_at?: string | null
           notes?: string | null
           password: string
           tiktok_url: string
@@ -68,6 +70,7 @@ export type Database = {
           id?: string
           last_synced_at?: string | null
           likes?: number
+          monetized_at?: string | null
           notes?: string | null
           password?: string
           tiktok_url?: string
