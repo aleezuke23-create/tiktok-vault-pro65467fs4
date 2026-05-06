@@ -36,6 +36,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
   const [newCat, setNewCat] = useState("");
   const [showNewCat, setShowNewCat] = useState(false);
   const [scrapeError, setScrapeError] = useState<string | null>(null);
+  const [manualName, setManualName] = useState("");
 
   useEffect(() => {
     if (open) {
@@ -60,6 +61,8 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
         setEmail(""); setPassword(""); setTiktokUrl(""); setCategoryId(null);
         setCountry(null); setNotes(""); setProfile(null);
       }
+      setManualName(account?.display_name ?? "");
+      setScrapeError(null);
       setShowNewCat(false); setNewCat("");
     }
   }, [open, account]);
@@ -110,6 +113,9 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
     if (!email || !password || !tiktokUrl) {
       toast.error("Preencha email, senha e link"); return;
     }
+    if (!profile && !manualName.trim()) {
+      toast.error("Carregue o perfil ou informe um nome manual"); return;
+    }
     try {
       await upsert.mutateAsync({
         id: account?.id,
@@ -117,7 +123,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
         category_id: categoryId, country_code: country,
         notes: notes || null,
         username: profile?.username ?? null,
-        display_name: profile?.displayName ?? null,
+        display_name: profile?.displayName ?? (manualName.trim() || null),
         avatar_url: profile?.avatarUrl ?? null,
         bio: profile?.bio ?? null,
         followers: profile?.followers ?? 0,
@@ -174,8 +180,22 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
               <div className="flex-1">
                 <div className="font-medium">Não foi possível carregar o perfil</div>
                 <div className="text-xs mt-0.5 opacity-90">{scrapeError}</div>
-                <div className="text-xs mt-1 opacity-75">Você pode salvar mesmo assim e preencher os dados manualmente depois.</div>
+                <div className="text-xs mt-1 opacity-75">Sem problema — preencha o nome abaixo e salve mesmo assim.</div>
               </div>
+            </div>
+          )}
+
+          {!profile && (
+            <div className="space-y-1.5">
+              <Label>Nome de exibição (manual)</Label>
+              <Input
+                value={manualName}
+                onChange={(e) => setManualName(e.target.value)}
+                placeholder="Ex: Minha conta TikTok"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Use quando o perfil não puder ser carregado automaticamente.
+              </p>
             </div>
           )}
 
