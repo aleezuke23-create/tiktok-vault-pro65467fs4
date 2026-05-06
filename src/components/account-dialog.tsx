@@ -61,6 +61,8 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
         setEmail(""); setPassword(""); setTiktokUrl(""); setCategoryId(null);
         setCountry(null); setNotes(""); setProfile(null);
       }
+      setManualName(account?.display_name ?? "");
+      setScrapeError(null);
       setShowNewCat(false); setNewCat("");
     }
   }, [open, account]);
