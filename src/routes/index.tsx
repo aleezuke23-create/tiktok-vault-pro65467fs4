@@ -27,6 +27,28 @@ function Home() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("created");
   const [blurMode, setBlurMode] = useState(false);
+  const [refreshingAll, setRefreshingAll] = useState(false);
+  const refresh = useRefreshAccountStats();
+
+  const refreshAll = async () => {
+    if (refreshingAll || !accounts.length) return;
+    setRefreshingAll(true);
+    let ok = 0, fail = 0;
+    const t = toast.loading(`Atualizando 0/${accounts.length}...`);
+    for (let i = 0; i < accounts.length; i++) {
+      const a = accounts[i];
+      try {
+        await refresh.mutateAsync(a);
+        ok++;
+      } catch {
+        fail++;
+      }
+      toast.loading(`Atualizando ${i + 1}/${accounts.length}...`, { id: t });
+      await new Promise((r) => setTimeout(r, 800));
+    }
+    toast.success(`Atualizado: ${ok} ok${fail ? `, ${fail} falharam` : ""}`, { id: t });
+    setRefreshingAll(false);
+  };
 
   const catMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   useAutoSyncStaleAccounts(accounts);
@@ -79,6 +101,17 @@ function Home() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={refreshAll}
+              disabled={refreshingAll || !accounts.length}
+              className="px-2 sm:px-3"
+              title="Atualizar todas as contas"
+            >
+              <RefreshCw className={`h-4 w-4 sm:mr-2 ${refreshingAll ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">{refreshingAll ? "Atualizando..." : "Atualizar tudo"}</span>
+            </Button>
             <Button
               variant={blurMode ? "default" : "outline"}
               size="sm"
