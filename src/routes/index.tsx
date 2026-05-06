@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useAccounts, useAutoSyncStaleAccounts, useCategories, type Account } from "@/hooks/use-accounts";
+import { useAccounts, useAutoSyncStaleAccounts, useCategories, useRefreshAccountStats, type Account } from "@/hooks/use-accounts";
+import { toast } from "sonner";
 import { AccountCard } from "@/components/account-card";
 import { AccountDialog } from "@/components/account-dialog";
 import { CategoriesDialog } from "@/components/categories-dialog";
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { COUNTRIES, formatCount } from "@/lib/countries";
-import { Plus, Search, Tags, Users, DollarSign, ShoppingBag, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Plus, Search, Tags, Users, DollarSign, ShoppingBag, Sparkles, Eye, EyeOff, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: Home });
 
