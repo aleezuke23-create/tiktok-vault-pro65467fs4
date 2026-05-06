@@ -113,6 +113,9 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
     if (!email || !password || !tiktokUrl) {
       toast.error("Preencha email, senha e link"); return;
     }
+    if (!profile && !manualName.trim()) {
+      toast.error("Carregue o perfil ou informe um nome manual"); return;
+    }
     try {
       await upsert.mutateAsync({
         id: account?.id,
@@ -120,7 +123,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
         category_id: categoryId, country_code: country,
         notes: notes || null,
         username: profile?.username ?? null,
-        display_name: profile?.displayName ?? null,
+        display_name: profile?.displayName ?? (manualName.trim() || null),
         avatar_url: profile?.avatarUrl ?? null,
         bio: profile?.bio ?? null,
         followers: profile?.followers ?? 0,
