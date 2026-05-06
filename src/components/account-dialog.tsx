@@ -174,8 +174,22 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
               <div className="flex-1">
                 <div className="font-medium">Não foi possível carregar o perfil</div>
                 <div className="text-xs mt-0.5 opacity-90">{scrapeError}</div>
-                <div className="text-xs mt-1 opacity-75">Você pode salvar mesmo assim e preencher os dados manualmente depois.</div>
+                <div className="text-xs mt-1 opacity-75">Sem problema — preencha o nome abaixo e salve mesmo assim.</div>
               </div>
+            </div>
+          )}
+
+          {!profile && (
+            <div className="space-y-1.5">
+              <Label>Nome de exibição (manual)</Label>
+              <Input
+                value={manualName}
+                onChange={(e) => setManualName(e.target.value)}
+                placeholder="Ex: Minha conta TikTok"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Use quando o perfil não puder ser carregado automaticamente.
+              </p>
             </div>
           )}
 
