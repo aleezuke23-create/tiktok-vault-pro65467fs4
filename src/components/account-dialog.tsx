@@ -36,6 +36,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
   const [newCat, setNewCat] = useState("");
   const [showNewCat, setShowNewCat] = useState(false);
   const [scrapeError, setScrapeError] = useState<string | null>(null);
+  const [manualName, setManualName] = useState("");
 
   useEffect(() => {
     if (open) {
