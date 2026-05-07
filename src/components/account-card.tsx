@@ -95,11 +95,12 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false }
           <RefreshCw className={`h-3.5 w-3.5 ${refresh.isPending ? "animate-spin" : ""}`} />
         </Button>
       </div>
-      {account.last_synced_at && (
-        <div className="text-[10px] text-muted-foreground -mt-1">
-          Sync: {new Date(account.last_synced_at).toLocaleString()}
-        </div>
-      )}
+      <div className="flex items-center justify-between text-[10px] text-muted-foreground -mt-1">
+        <span>Adicionado: {new Date(account.created_at).toLocaleDateString()}</span>
+        {account.last_synced_at && (
+          <span>Sync: {new Date(account.last_synced_at).toLocaleString()}</span>
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-1.5">
         <Badge
