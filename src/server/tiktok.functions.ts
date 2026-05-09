@@ -35,26 +35,71 @@ export const fetchTikTokProfile = createServerFn({ method: "POST" })
     }
 
     const profileUrl = `https://www.tiktok.com/@${username}`;
-    try {
-      const res = await fetch(profileUrl, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-          "Accept-Language": "en-US,en;q=0.9",
-          Accept: "text/html,application/xhtml+xml",
-        },
-      });
 
-      if (!res.ok) {
-        return { ok: false, error: `TikTok bloqueou o acesso (HTTP ${res.status}). Preencha manualmente.` };
+    const userAgents = [
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    ];
+
+    const tryFetchHtml = async (): Promise<string | null> => {
+      // 1) Direct attempts with rotating UAs
+      for (const ua of userAgents) {
+        try {
+          const res = await fetch(profileUrl, {
+            headers: {
+              "User-Agent": ua,
+              "Accept-Language": "en-US,en;q=0.9",
+              Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "Cache-Control": "no-cache",
+            },
+          });
+          if (res.ok) {
+            const html = await res.text();
+            if (html.includes("__UNIVERSAL_DATA_FOR_REHYDRATION__")) return html;
+          }
+        } catch (e) {
+          console.warn("direct fetch failed", e);
+        }
       }
 
-      const html = await res.text();
+      // 2) Proxies públicos como fallback
+      const proxies = [
+        `https://r.jina.ai/${profileUrl}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(profileUrl)}`,
+        `https://corsproxy.io/?${encodeURIComponent(profileUrl)}`,
+      ];
+      for (const proxyUrl of proxies) {
+        try {
+          const res = await fetch(proxyUrl, {
+            headers: {
+              "User-Agent": userAgents[0],
+              Accept: "text/html,*/*",
+            },
+          });
+          if (res.ok) {
+            const html = await res.text();
+            if (html.includes("__UNIVERSAL_DATA_FOR_REHYDRATION__")) return html;
+          }
+        } catch (e) {
+          console.warn("proxy fetch failed:", proxyUrl, e);
+        }
+      }
+
+      return null;
+    };
+
+    try {
+      const html = await tryFetchHtml();
+      if (!html) {
+        return { ok: false, error: "TikTok bloqueou todas as tentativas (direto + proxies). Preencha manualmente." };
+      }
+
       const match = html.match(
         /<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/
       );
       if (!match) {
-        return { ok: false, error: "Não foi possível ler o perfil. TikTok pode estar bloqueando — preencha manualmente." };
+        return { ok: false, error: "Não foi possível ler o perfil. Preencha manualmente." };
       }
 
       const json = JSON.parse(match[1]);
