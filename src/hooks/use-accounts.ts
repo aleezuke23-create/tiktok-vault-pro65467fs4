@@ -67,6 +67,20 @@ export function useDeleteAccount() {
   });
 }
 
+export function useMoveAccountCategory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, categoryId }: { id: string; categoryId: string | null }) => {
+      const { error } = await supabase
+        .from("accounts")
+        .update({ category_id: categoryId, updated_at: new Date().toISOString() } as TablesUpdate<"accounts">)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["accounts"] }),
+  });
+}
+
 export function useCreateCategory() {
   const qc = useQueryClient();
   return useMutation({

@@ -63,7 +63,8 @@ function Home() {
         a.email.toLowerCase().includes(q)
       );
     }
-    if (filterCat !== "all") rows = rows.filter((a) => a.category_id === filterCat);
+    if (filterCat === "none") rows = rows.filter((a) => !a.category_id);
+    else if (filterCat !== "all") rows = rows.filter((a) => a.category_id === filterCat);
     if (filterCountry !== "all") rows = rows.filter((a) => a.country_code === filterCountry);
     if (filterStatus === "monetized") rows = rows.filter((a) => a.followers >= 10000);
     if (filterStatus === "pending") rows = rows.filter((a) => a.followers < 10000);
@@ -144,6 +145,27 @@ function Home() {
 
         <MonetizationChart accounts={accounts} />
 
+        <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+          {[
+            { id: "all", name: "Todas", count: accounts.length },
+            ...categories.map((c) => ({ id: c.id, name: c.name, count: accounts.filter((a) => a.category_id === c.id).length })),
+            { id: "none", name: "Sem categoria", count: accounts.filter((a) => !a.category_id).length },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setFilterCat(tab.id)}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                filterCat === tab.id
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {tab.name} <span className="opacity-70">({tab.count})</span>
+            </button>
+          ))}
+        </div>
+
         <Card className="p-3 flex flex-col gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -154,6 +176,7 @@ function Home() {
               <SelectTrigger><SelectValue placeholder="Categoria" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas categorias</SelectItem>
+                <SelectItem value="none">Sem categoria</SelectItem>
                 {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -200,7 +223,7 @@ function Home() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((a) => (
-              <AccountCard key={a.id} account={a} category={a.category_id ? catMap.get(a.category_id) ?? null : null} onEdit={openEdit} blurSensitive={blurMode} />
+              <AccountCard key={a.id} account={a} category={a.category_id ? catMap.get(a.category_id) ?? null : null} onEdit={openEdit} blurSensitive={blurMode} onCategoryClick={(id) => setFilterCat(id ?? "none")} />
             ))}
           </div>
         )}
