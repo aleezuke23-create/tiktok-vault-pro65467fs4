@@ -75,7 +75,11 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
           </div>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
             {country && <span>{country.flag} {country.name}</span>}
-            {category && <Badge variant="secondary" className="text-[10px]">{category.name}</Badge>}
+            {category && (
+              <button type="button" onClick={() => onCategoryClick?.(category.id)} title="Ver contas dessa categoria">
+                <Badge variant="secondary" className="text-[10px] hover:bg-primary/20 cursor-pointer">{category.name}</Badge>
+              </button>
+            )}
           </div>
         </div>
       </div>
