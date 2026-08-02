@@ -1,11 +1,19 @@
 import { useState } from "react";
 import type { Account, Category } from "@/hooks/use-accounts";
-import { useDeleteAccount, useRefreshAccountStats } from "@/hooks/use-accounts";
+import { useCategories, useDeleteAccount, useMoveAccountCategory, useRefreshAccountStats } from "@/hooks/use-accounts";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Eye, EyeOff, Copy, Trash2, Pencil, ExternalLink, Heart, Users, ShoppingBag, DollarSign, RefreshCw } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Eye, EyeOff, Copy, Trash2, Pencil, ExternalLink, Heart, Users, ShoppingBag, DollarSign, RefreshCw, FolderInput, Check } from "lucide-react";
 import { getCountry, formatCount } from "@/lib/countries";
 import { toast } from "sonner";
 
