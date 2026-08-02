@@ -166,6 +166,48 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
         <Button size="sm" variant="outline" className="flex-1" onClick={() => onEdit(account)}>
           <Pencil className="h-3.5 w-3.5 mr-1.5" /> Editar
         </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline" title="Mover para categoria" disabled={move.isPending}>
+              <FolderInput className="h-3.5 w-3.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Mover para</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {allCategories.map((c) => (
+              <DropdownMenuItem
+                key={c.id}
+                onSelect={() => {
+                  if (c.id === account.category_id) return;
+                  toast.promise(move.mutateAsync({ id: account.id, categoryId: c.id }), {
+                    loading: "Movendo...",
+                    success: `Movido para ${c.name}`,
+                    error: "Falha ao mover",
+                  });
+                }}
+              >
+                {c.id === account.category_id && <Check className="h-3.5 w-3.5 mr-1.5" />}
+                {c.name}
+              </DropdownMenuItem>
+            ))}
+            {allCategories.length === 0 && (
+              <DropdownMenuItem disabled>Nenhuma categoria criada</DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={() => {
+                toast.promise(move.mutateAsync({ id: account.id, categoryId: null }), {
+                  loading: "Removendo...",
+                  success: "Sem categoria",
+                  error: "Falha",
+                });
+              }}
+            >
+              Sem categoria
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button size="sm" variant="outline" asChild>
           <a href={account.tiktok_url} target="_blank" rel="noreferrer">
             <ExternalLink className="h-3.5 w-3.5" />
