@@ -63,7 +63,8 @@ function Home() {
         a.email.toLowerCase().includes(q)
       );
     }
-    if (filterCat !== "all") rows = rows.filter((a) => a.category_id === filterCat);
+    if (filterCat === "none") rows = rows.filter((a) => !a.category_id);
+    else if (filterCat !== "all") rows = rows.filter((a) => a.category_id === filterCat);
     if (filterCountry !== "all") rows = rows.filter((a) => a.country_code === filterCountry);
     if (filterStatus === "monetized") rows = rows.filter((a) => a.followers >= 10000);
     if (filterStatus === "pending") rows = rows.filter((a) => a.followers < 10000);
@@ -222,7 +223,7 @@ function Home() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((a) => (
-              <AccountCard key={a.id} account={a} category={a.category_id ? catMap.get(a.category_id) ?? null : null} onEdit={openEdit} blurSensitive={blurMode} />
+              <AccountCard key={a.id} account={a} category={a.category_id ? catMap.get(a.category_id) ?? null : null} onEdit={openEdit} blurSensitive={blurMode} onCategoryClick={(id) => setFilterCat(id ?? "none")} />
             ))}
           </div>
         )}
