@@ -25,12 +25,15 @@ type Props = {
   category: Category | null;
   onEdit: (a: Account) => void;
   blurSensitive?: boolean;
+  onCategoryClick?: (categoryId: string | null) => void;
 };
 
-export function AccountCard({ account, category, onEdit, blurSensitive = false }: Props) {
+export function AccountCard({ account, category, onEdit, blurSensitive = false, onCategoryClick }: Props) {
   const [showPwd, setShowPwd] = useState(false);
   const del = useDeleteAccount();
   const refresh = useRefreshAccountStats();
+  const move = useMoveAccountCategory();
+  const { data: allCategories = [] } = useCategories();
   const country = getCountry(account.country_code);
 
   const monetized = account.followers >= MONETIZE_THRESHOLD;
