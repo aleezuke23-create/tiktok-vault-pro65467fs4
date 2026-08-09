@@ -10,12 +10,16 @@ export type TikTokProfileData = {
 };
 
 export function extractUsername(input: string): string | null {
-  const trimmed = input.trim();
-  const handleMatch = trimmed.match(/^@?([a-zA-Z0-9._]{2,30})$/);
-  if (handleMatch) return handleMatch[1];
+  const trimmed = input.trim().split(/[?#\s]/)[0] ?? "";
+  // 1) Sempre tenta primeiro o padrão de URL (…tiktok.com/@usuario)
   const urlMatch = trimmed.match(/tiktok\.com\/@([a-zA-Z0-9._]{2,30})/i);
-  if (urlMatch) return urlMatch[1];
-  return null;
+  if (urlMatch) return urlMatch[1] ?? null;
+  // 2) Se ainda parece uma URL/domínio, não trate como handle
+  if (/tiktok\.com/i.test(trimmed) || /^https?:\/\//i.test(trimmed) || trimmed.includes("/")) {
+    return null;
+  }
+  const handleMatch = trimmed.match(/^@?([a-zA-Z0-9._]{2,30})$/);
+  return handleMatch?.[1] ?? null;
 }
 
 export async function scrapeTikTokProfile(

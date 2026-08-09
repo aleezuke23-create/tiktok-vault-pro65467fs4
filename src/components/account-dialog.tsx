@@ -103,10 +103,14 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
   };
 
   const normalizeTiktokUrl = (input: string): string => {
-    const t = input.trim();
-    if (/^https?:\/\//i.test(t)) return t;
+    const t = input.trim().split(/[?#\s]/)[0] ?? "";
+    const fromUrl = t.match(/tiktok\.com\/@([a-zA-Z0-9._]{2,30})/i)?.[1];
+    if (fromUrl) return `https://www.tiktok.com/@${fromUrl}`;
     const handle = t.replace(/^@/, "");
-    return `https://www.tiktok.com/@${handle}`;
+    if (/^[a-zA-Z0-9._]{2,30}$/.test(handle) && !/tiktok\.com/i.test(handle)) {
+      return `https://www.tiktok.com/@${handle}`;
+    }
+    return t;
   };
 
   const handleSave = async () => {
