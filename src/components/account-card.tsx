@@ -20,6 +20,14 @@ import { toast } from "sonner";
 const MONETIZE_THRESHOLD = 10_000;
 const SHOP_THRESHOLD = 2_000;
 
+function TikTokLogo({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+      <path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.1v12.4a2.59 2.59 0 1 1-1.84-2.48V9.75a5.79 5.79 0 1 0 4.94 5.73V9.4a7.35 7.35 0 0 0 4.3 1.38V7.68a4.28 4.28 0 0 1-3.24-1.86Z" />
+    </svg>
+  );
+}
+
 type Props = {
   account: Account;
   category: Category | null;
@@ -38,6 +46,7 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
 
   const monetized = account.followers >= MONETIZE_THRESHOLD;
   const shopActive = account.followers >= SHOP_THRESHOLD;
+  const awaiting = !account.tiktok_url && !account.username;
 
   const copy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -64,14 +73,16 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
       <div className="flex items-start gap-3">
         <Avatar className={`h-14 w-14 ring-1 ring-border transition ${blurSensitive ? "blur-md" : ""}`}>
           <AvatarImage src={account.avatar_url ?? undefined} />
-          <AvatarFallback>{(account.display_name ?? account.email)[0]?.toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {awaiting ? <TikTokLogo className="h-7 w-7" /> : (account.display_name ?? account.email)[0]?.toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className={`font-semibold truncate transition ${blurSensitive ? "blur-sm select-none" : ""}`}>
-            {account.display_name ?? "—"}
+            {account.display_name ?? (awaiting ? "Aguardando conta" : "—")}
           </div>
-          <div className={`text-sm text-muted-foreground truncate transition ${blurSensitive ? "blur-sm select-none" : ""}`}>
-            {account.username ? `@${account.username}` : "sem perfil carregado"}
+          <div className={`text-sm text-muted-foreground truncate transition ${!awaiting && blurSensitive ? "blur-sm select-none" : ""}`}>
+            {account.username ? `@${account.username}` : awaiting ? "Em espera de criação" : "sem perfil carregado"}
           </div>
           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
             {country && <span>{country.flag} {country.name}</span>}
@@ -208,10 +219,14 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button size="sm" variant="outline" asChild>
-          <a href={account.tiktok_url} target="_blank" rel="noreferrer">
+        <Button size="sm" variant="outline" asChild={!awaiting} disabled={awaiting} title="Abrir perfil">
+          {awaiting ? (
             <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+          ) : (
+            <a href={account.tiktok_url} target="_blank" rel="noreferrer">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          )}
         </Button>
         <Button size="sm" variant="outline" onClick={handleDelete} className="text-destructive hover:text-destructive">
           <Trash2 className="h-3.5 w-3.5" />
