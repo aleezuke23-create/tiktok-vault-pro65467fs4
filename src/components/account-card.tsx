@@ -219,10 +219,14 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button size="sm" variant="outline" asChild>
-          <a href={account.tiktok_url} target="_blank" rel="noreferrer">
+        <Button size="sm" variant="outline" asChild={!awaiting} disabled={awaiting} title="Abrir perfil">
+          {awaiting ? (
             <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+          ) : (
+            <a href={account.tiktok_url} target="_blank" rel="noreferrer">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          )}
         </Button>
         <Button size="sm" variant="outline" onClick={handleDelete} className="text-destructive hover:text-destructive">
           <Trash2 className="h-3.5 w-3.5" />
