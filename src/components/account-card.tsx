@@ -46,6 +46,7 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
 
   const monetized = account.followers >= MONETIZE_THRESHOLD;
   const shopActive = account.followers >= SHOP_THRESHOLD;
+  const awaiting = !account.tiktok_url && !account.username;
 
   const copy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
