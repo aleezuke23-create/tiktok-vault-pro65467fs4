@@ -114,16 +114,13 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
   };
 
   const handleSave = async () => {
-    if (!email || !password || !tiktokUrl) {
-      toast.error("Preencha email, senha e link"); return;
-    }
-    if (!profile && !manualName.trim()) {
-      toast.error("Carregue o perfil ou informe um nome manual"); return;
+    if (!email || !password) {
+      toast.error("Preencha email e senha"); return;
     }
     try {
       await upsert.mutateAsync({
         id: account?.id,
-        email, password, tiktok_url: normalizeTiktokUrl(tiktokUrl),
+        email, password, tiktok_url: tiktokUrl ? normalizeTiktokUrl(tiktokUrl) : "",
         category_id: categoryId, country_code: country,
         notes: notes || null,
         username: profile?.username ?? null,
@@ -167,7 +164,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Link do TikTok ou @username</Label>
+            <Label>Link do TikTok ou @username <span className="text-muted-foreground font-normal">(opcional)</span></Label>
             <div className="flex gap-2">
               <Input value={tiktokUrl} onChange={(e) => setTiktokUrl(e.target.value)} placeholder="@usuario  ou  https://tiktok.com/@usuario" />
               <Button type="button" onClick={handleLoad} disabled={loading} variant="secondary">
@@ -175,7 +172,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
                 <span className="ml-2 hidden sm:inline">Carregar</span>
               </Button>
             </div>
-            <p className="text-[11px] text-muted-foreground">Cole o link completo ou apenas o @username — vamos buscar automaticamente.</p>
+            <p className="text-[11px] text-muted-foreground">Cole o link completo ou apenas o @username. Deixe vazio para salvar só email e senha — a conta fica <span className="text-foreground">em espera de criação</span>.</p>
           </div>
 
           {scrapeError && (
@@ -191,7 +188,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
 
           {!profile && (
             <div className="space-y-1.5">
-              <Label>Nome de exibição (manual)</Label>
+              <Label>Nome de exibição (manual, opcional)</Label>
               <Input
                 value={manualName}
                 onChange={(e) => setManualName(e.target.value)}
