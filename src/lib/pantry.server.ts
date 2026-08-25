@@ -1,9 +1,11 @@
 const PANTRY_ID = "233721d4-2b4d-4fff-9577-f98dbfc6fedb";
 const BASE = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket`;
 
+export type PantryRow = Record<string, string | number | boolean | null>;
+
 export type PantrySnapshot = {
-  accounts: unknown[];
-  categories: unknown[];
+  accounts: PantryRow[];
+  categories: PantryRow[];
   updated_at: string;
 };
 

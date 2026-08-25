@@ -10,7 +10,12 @@ export const loadFromPantry = createServerFn({ method: "GET" }).handler(async ()
 
 export const saveToPantry = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) =>
-    z.object({ accounts: z.array(z.unknown()), categories: z.array(z.unknown()) }).parse(data),
+    z
+      .object({
+        accounts: z.array(z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))),
+        categories: z.array(z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))),
+      })
+      .parse(data),
   )
   .handler(async ({ data }) => {
     const { writeBasket } = await import("@/lib/pantry.server");
