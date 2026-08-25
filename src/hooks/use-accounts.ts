@@ -3,21 +3,41 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTikTokProfile } from "@/lib/tiktok.functions";
+import { loadFromPantry, saveToPantry } from "@/lib/pantry.functions";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 export type Account = Tables<"accounts">;
 export type Category = Tables<"categories">;
 
+type PantryRow = Record<string, string | number | boolean | null>;
+
+/** Espelha o estado atual (banco ou cache) no Pantry como segunda fonte. */
+async function mirrorToPantry(qc: ReturnType<typeof useQueryClient>) {
+  try {
+    const accounts = (qc.getQueryData<Account[]>(["accounts"]) ?? []) as unknown as PantryRow[];
+    const categories = (qc.getQueryData<Category[]>(["categories"]) ?? []) as unknown as PantryRow[];
+    await saveToPantry({ data: { accounts, categories } });
+  } catch (e) {
+    console.warn("pantry mirror falhou", e);
+  }
+}
+
 export function useAccounts() {
   return useQuery({
     queryKey: ["accounts"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("accounts")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as Account[];
+      try {
+        const { data, error } = await supabase
+          .from("accounts")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        return data as Account[];
+      } catch (e) {
+        console.warn("Banco indisponível, carregando do Pantry", e);
+        const snap = await loadFromPantry({});
+        return snap.accounts as unknown as Account[];
+      }
     },
   });
 }
@@ -26,15 +46,22 @@ export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("*")
-        .order("name");
-      if (error) throw error;
-      return data as Category[];
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("*")
+          .order("name");
+        if (error) throw error;
+        return data as Category[];
+      } catch (e) {
+        console.warn("Banco indisponível, carregando categorias do Pantry", e);
+        const snap = await loadFromPantry({});
+        return snap.categories as unknown as Category[];
+      }
     },
   });
 }
+
 
 export function useUpsertAccount() {
   const qc = useQueryClient();
