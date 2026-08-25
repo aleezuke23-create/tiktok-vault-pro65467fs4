@@ -3,21 +3,41 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchTikTokProfile } from "@/lib/tiktok.functions";
+import { loadFromPantry, saveToPantry } from "@/lib/pantry.functions";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
 export type Account = Tables<"accounts">;
 export type Category = Tables<"categories">;
 
+type PantryRow = Record<string, string | number | boolean | null>;
+
+/** Espelha o estado atual (banco ou cache) no Pantry como segunda fonte. */
+async function mirrorToPantry(qc: ReturnType<typeof useQueryClient>) {
+  try {
+    const accounts = (qc.getQueryData<Account[]>(["accounts"]) ?? []) as unknown as PantryRow[];
+    const categories = (qc.getQueryData<Category[]>(["categories"]) ?? []) as unknown as PantryRow[];
+    await saveToPantry({ data: { accounts, categories } });
+  } catch (e) {
+    console.warn("pantry mirror falhou", e);
+  }
+}
+
 export function useAccounts() {
   return useQuery({
     queryKey: ["accounts"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("accounts")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as Account[];
+      try {
+        const { data, error } = await supabase
+          .from("accounts")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        return data as Account[];
+      } catch (e) {
+        console.warn("Banco indisponível, carregando do Pantry", e);
+        const snap = await loadFromPantry({});
+        return snap.accounts as unknown as Account[];
+      }
     },
   });
 }
@@ -26,33 +46,64 @@ export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("categories")
-        .select("*")
-        .order("name");
-      if (error) throw error;
-      return data as Category[];
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .select("*")
+          .order("name");
+        if (error) throw error;
+        return data as Category[];
+      } catch (e) {
+        console.warn("Banco indisponível, carregando categorias do Pantry", e);
+        const snap = await loadFromPantry({});
+        return snap.categories as unknown as Category[];
+      }
     },
   });
 }
+
 
 export function useUpsertAccount() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (acc: TablesInsert<"accounts"> & { id?: string }) => {
-      if (acc.id) {
-        const { id, ...rest } = acc;
-        const { error } = await supabase
-          .from("accounts")
-          .update({ ...rest, updated_at: new Date().toISOString() } as TablesUpdate<"accounts">)
-          .eq("id", id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("accounts").insert(acc);
-        if (error) throw error;
+      const nowIso = new Date().toISOString();
+      let dbOk = true;
+      try {
+        if (acc.id) {
+          const { id, ...rest } = acc;
+          const { error } = await supabase
+            .from("accounts")
+            .update({ ...rest, updated_at: nowIso } as TablesUpdate<"accounts">)
+            .eq("id", id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("accounts").insert(acc);
+          if (error) throw error;
+        }
+      } catch (e) {
+        console.warn("Banco indisponível, salvando no Pantry", e);
+        dbOk = false;
+        const current = qc.getQueryData<Account[]>(["accounts"]) ?? [];
+        const next = acc.id
+          ? current.map((a) => (a.id === acc.id ? ({ ...a, ...acc, updated_at: nowIso } as Account) : a))
+          : ([
+              {
+                ...(acc as unknown as Account),
+                id: acc.id ?? crypto.randomUUID(),
+                created_at: nowIso,
+                updated_at: nowIso,
+              },
+              ...current,
+            ] as Account[]);
+        qc.setQueryData(["accounts"], next);
       }
+      return dbOk;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["accounts"] }),
+    onSuccess: async (dbOk) => {
+      if (dbOk) await qc.invalidateQueries({ queryKey: ["accounts"] });
+      await mirrorToPantry(qc);
+    },
   });
 }
 
@@ -60,10 +111,21 @@ export function useDeleteAccount() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("accounts").delete().eq("id", id);
-      if (error) throw error;
+      try {
+        const { error } = await supabase.from("accounts").delete().eq("id", id);
+        if (error) throw error;
+        return true;
+      } catch (e) {
+        console.warn("Banco indisponível, removendo no Pantry", e);
+        const current = qc.getQueryData<Account[]>(["accounts"]) ?? [];
+        qc.setQueryData(["accounts"], current.filter((a) => a.id !== id));
+        return false;
+      }
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["accounts"] }),
+    onSuccess: async (dbOk) => {
+      if (dbOk) await qc.invalidateQueries({ queryKey: ["accounts"] });
+      await mirrorToPantry(qc);
+    },
   });
 }
 
@@ -71,13 +133,28 @@ export function useMoveAccountCategory() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, categoryId }: { id: string; categoryId: string | null }) => {
-      const { error } = await supabase
-        .from("accounts")
-        .update({ category_id: categoryId, updated_at: new Date().toISOString() } as TablesUpdate<"accounts">)
-        .eq("id", id);
-      if (error) throw error;
+      const nowIso = new Date().toISOString();
+      try {
+        const { error } = await supabase
+          .from("accounts")
+          .update({ category_id: categoryId, updated_at: nowIso } as TablesUpdate<"accounts">)
+          .eq("id", id);
+        if (error) throw error;
+        return true;
+      } catch (e) {
+        console.warn("Banco indisponível, movendo no Pantry", e);
+        const current = qc.getQueryData<Account[]>(["accounts"]) ?? [];
+        qc.setQueryData(
+          ["accounts"],
+          current.map((a) => (a.id === id ? { ...a, category_id: categoryId, updated_at: nowIso } : a)),
+        );
+        return false;
+      }
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["accounts"] }),
+    onSuccess: async (dbOk) => {
+      if (dbOk) await qc.invalidateQueries({ queryKey: ["accounts"] });
+      await mirrorToPantry(qc);
+    },
   });
 }
 
@@ -85,15 +162,27 @@ export function useCreateCategory() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (name: string) => {
-      const { data, error } = await supabase
-        .from("categories")
-        .insert({ name })
-        .select()
-        .single();
-      if (error) throw error;
-      return data as Category;
+      try {
+        const { data, error } = await supabase
+          .from("categories")
+          .insert({ name })
+          .select()
+          .single();
+        if (error) throw error;
+        return { cat: data as Category, dbOk: true };
+      } catch (e) {
+        console.warn("Banco indisponível, criando categoria no Pantry", e);
+        const nowIso = new Date().toISOString();
+        const cat = { id: crypto.randomUUID(), name, created_at: nowIso } as unknown as Category;
+        const current = qc.getQueryData<Category[]>(["categories"]) ?? [];
+        qc.setQueryData(["categories"], [...current, cat]);
+        return { cat, dbOk: false };
+      }
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
+    onSuccess: async ({ dbOk }) => {
+      if (dbOk) await qc.invalidateQueries({ queryKey: ["categories"] });
+      await mirrorToPantry(qc);
+    },
   });
 }
 
@@ -101,15 +190,32 @@ export function useDeleteCategory() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("categories").delete().eq("id", id);
-      if (error) throw error;
+      try {
+        const { error } = await supabase.from("categories").delete().eq("id", id);
+        if (error) throw error;
+        return true;
+      } catch (e) {
+        console.warn("Banco indisponível, removendo categoria no Pantry", e);
+        const cats = qc.getQueryData<Category[]>(["categories"]) ?? [];
+        qc.setQueryData(["categories"], cats.filter((c) => c.id !== id));
+        const accs = qc.getQueryData<Account[]>(["accounts"]) ?? [];
+        qc.setQueryData(
+          ["accounts"],
+          accs.map((a) => (a.category_id === id ? { ...a, category_id: null } : a)),
+        );
+        return false;
+      }
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
-      qc.invalidateQueries({ queryKey: ["accounts"] });
+    onSuccess: async (dbOk) => {
+      if (dbOk) {
+        await qc.invalidateQueries({ queryKey: ["categories"] });
+        await qc.invalidateQueries({ queryKey: ["accounts"] });
+      }
+      await mirrorToPantry(qc);
     },
   });
 }
+
 
 const STALE_MS = 15 * 60 * 1000; // 15 minutos
 

@@ -93,7 +93,7 @@ export function AccountDialog({ open, onOpenChange, account }: Props) {
     if (!newCat.trim()) return;
     try {
       const c = await createCategory.mutateAsync(newCat.trim());
-      setCategoryId(c.id);
+      setCategoryId(c.cat.id);
       setNewCat(""); setShowNewCat(false);
       toast.success("Categoria criada");
     } catch (e: unknown) {
