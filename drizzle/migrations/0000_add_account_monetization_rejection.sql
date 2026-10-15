@@ -1,0 +1,1 @@
+ALTER TABLE public.accounts ADD COLUMN IF NOT EXISTS monetization_rejected boolean NOT NULL DEFAULT false;

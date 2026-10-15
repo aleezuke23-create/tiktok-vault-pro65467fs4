@@ -28,6 +28,7 @@ export type Database = {
           id: string
           last_synced_at: string | null
           likes: number
+          monetization_rejected: boolean
           monetized_at: string | null
           notes: string | null
           password: string
@@ -49,6 +50,7 @@ export type Database = {
           id?: string
           last_synced_at?: string | null
           likes?: number
+          monetization_rejected?: boolean
           monetized_at?: string | null
           notes?: string | null
           password: string
@@ -70,6 +72,7 @@ export type Database = {
           id?: string
           last_synced_at?: string | null
           likes?: number
+          monetization_rejected?: boolean
           monetized_at?: string | null
           notes?: string | null
           password?: string
