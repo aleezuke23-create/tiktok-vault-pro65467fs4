@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useAccounts, useAutoSyncStaleAccounts, useCategories, useRefreshAccountStats, type Account } from "@/hooks/use-accounts";
 import { toast } from "sonner";
 import { AccountCard } from "@/components/account-card";
+import { getMonetizationStatus, matchesAccountStatus } from "@/lib/account-status";
 import { AccountDialog } from "@/components/account-dialog";
 import { CategoriesDialog } from "@/components/categories-dialog";
 import { MonetizationChart } from "@/components/monetization-chart";
@@ -13,7 +14,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { COUNTRIES, formatCount } from "@/lib/countries";
 import { Plus, Search, Tags, Users, DollarSign, ShoppingBag, Sparkles, Eye, EyeOff, RefreshCw } from "lucide-react";
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+  head: () => ({ meta: [
+    { title: "TikTok Accounts — Gerenciador de contas" },
+    { name: "description", content: "Organize contas TikTok por categoria, país e status de monetização, incluindo contas recusadas." },
+    { property: "og:title", content: "TikTok Accounts — Gerenciador de contas" },
+    { property: "og:description", content: "Gerencie perfis, seguidores e status de monetização das suas contas TikTok." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+  component: Home,
+});
 
 function Home() {
   const { data: accounts = [], isLoading } = useAccounts();
@@ -66,9 +77,7 @@ function Home() {
     if (filterCat === "none") rows = rows.filter((a) => !a.category_id);
     else if (filterCat !== "all") rows = rows.filter((a) => a.category_id === filterCat);
     if (filterCountry !== "all") rows = rows.filter((a) => a.country_code === filterCountry);
-    if (filterStatus === "monetized") rows = rows.filter((a) => a.followers >= 10000);
-    if (filterStatus === "pending") rows = rows.filter((a) => a.followers < 10000);
-    if (filterStatus === "shop") rows = rows.filter((a) => a.followers >= 2000);
+    rows = rows.filter((a) => matchesAccountStatus(a, filterStatus));
 
     if (sortBy === "followers") rows.sort((a, b) => b.followers - a.followers);
     else if (sortBy === "likes") rows.sort((a, b) => b.likes - a.likes);
@@ -79,7 +88,7 @@ function Home() {
 
   const stats = useMemo(() => {
     const total = accounts.length;
-    const monetized = accounts.filter((a) => a.followers >= 10000).length;
+    const monetized = accounts.filter((a) => getMonetizationStatus(a) === "monetized").length;
     const shop = accounts.filter((a) => a.followers >= 2000).length;
     const followers = accounts.reduce((s, a) => s + a.followers, 0);
     return { total, monetized, shop, followers };
@@ -193,6 +202,7 @@ function Home() {
                 <SelectItem value="all">Todos status</SelectItem>
                 <SelectItem value="monetized">Monetizadas</SelectItem>
                 <SelectItem value="pending">Pendentes</SelectItem>
+                <SelectItem value="rejected">Recusadas</SelectItem>
                 <SelectItem value="shop">Com Shop</SelectItem>
               </SelectContent>
             </Select>

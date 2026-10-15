@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Account, Category } from "@/hooks/use-accounts";
-import { useCategories, useDeleteAccount, useMoveAccountCategory, useRefreshAccountStats } from "@/hooks/use-accounts";
+import { useCategories, useDeleteAccount, useMoveAccountCategory, useRefreshAccountStats, useSetMonetizationRejected } from "@/hooks/use-accounts";
+import { getMonetizationStatus } from "@/lib/account-status";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,6 @@ import { Eye, EyeOff, Copy, Trash2, Pencil, ExternalLink, Heart, Users, Shopping
 import { getCountry, formatCount } from "@/lib/countries";
 import { toast } from "sonner";
 
-const MONETIZE_THRESHOLD = 10_000;
 const SHOP_THRESHOLD = 2_000;
 
 function TikTokLogo({ className = "h-5 w-5" }: { className?: string }) {
@@ -41,10 +41,13 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
   const del = useDeleteAccount();
   const refresh = useRefreshAccountStats();
   const move = useMoveAccountCategory();
+  const changeStatus = useSetMonetizationRejected();
   const { data: allCategories = [] } = useCategories();
   const country = getCountry(account.country_code);
 
-  const monetized = account.followers >= MONETIZE_THRESHOLD;
+  const status = getMonetizationStatus(account);
+  const monetized = status === "monetized";
+  const rejected = status === "rejected";
   const shopActive = account.followers >= SHOP_THRESHOLD;
   const awaiting = !account.tiktok_url && !account.username;
 
@@ -59,7 +62,9 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
     }
   };
 
-  const statusBorder = monetized
+  const statusBorder = rejected
+    ? "border-destructive/60 ring-1 ring-destructive/30"
+    : monetized
     ? "border-success/60 ring-1 ring-success/30"
     : "border-warning/40";
 
@@ -129,16 +134,44 @@ export function AccountCard({ account, category, onEdit, blurSensitive = false, 
       </div>
 
       <div className="flex flex-wrap gap-1.5">
-        <Badge
-          className={
-            monetized
-              ? "bg-success text-success-foreground hover:bg-success/90"
-              : "bg-warning text-warning-foreground hover:bg-warning/90"
-          }
-        >
-          <DollarSign className="h-3 w-3 mr-1" />
-          {monetized ? "Monetized" : "Pendente"}
-        </Badge>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="sm"
+              disabled={changeStatus.isPending}
+              aria-label="Alterar status de monetização"
+              title="Alterar status de monetização"
+              className={`h-6 px-2 text-xs ${rejected
+                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                : monetized
+                  ? "bg-success text-success-foreground hover:bg-success/90"
+                  : "bg-warning text-warning-foreground hover:bg-warning/90"}`}
+            >
+              <DollarSign className="h-3 w-3 mr-1" />
+              {rejected ? "Recusado" : monetized ? "Monetized" : "Pendente"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuLabel>Monetização</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {[
+              { rejected: false, label: account.followers >= 10_000 ? "Monetized (automático)" : "Pendente (automático)" },
+              { rejected: true, label: "Recusado" },
+            ].map((option) => (
+              <DropdownMenuItem key={option.label} onSelect={() => {
+                if (option.rejected === rejected) return;
+                toast.promise(changeStatus.mutateAsync({ id: account.id, rejected: option.rejected }), {
+                  loading: "Salvando status...",
+                  success: "Status atualizado",
+                  error: (e) => e?.message ?? "Falha ao salvar status",
+                });
+              }} className={option.rejected ? "text-destructive" : ""}>
+                {option.rejected === rejected && <Check className="h-3.5 w-3.5 mr-1.5" />}
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Badge
           className={
             shopActive
