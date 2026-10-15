@@ -158,6 +158,35 @@ export function useMoveAccountCategory() {
   });
 }
 
+export function useSetMonetizationRejected() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, rejected }: { id: string; rejected: boolean }) => {
+      const updated_at = new Date().toISOString();
+      const { error } = await supabase.from("accounts")
+        .update({ monetization_rejected: rejected, updated_at }).eq("id", id);
+      const current = qc.getQueryData<Account[]>(["accounts"]) ?? [];
+      const next = current.map((a) => a.id === id ? { ...a, monetization_rejected: rejected, updated_at } : a);
+      if (error) {
+        const categories = qc.getQueryData<Category[]>(["categories"]) ?? [];
+        const saved = await saveToPantry({ data: {
+          accounts: next as unknown as PantryRow[],
+          categories: categories as unknown as PantryRow[],
+        } });
+        if (!saved.ok) throw new Error("Não foi possível salvar o status. Tente novamente.");
+      }
+      qc.setQueryData(["accounts"], next);
+      return !error;
+    },
+    onSuccess: async (dbOk) => {
+      if (dbOk) {
+        await qc.invalidateQueries({ queryKey: ["accounts"] });
+        await mirrorToPantry(qc);
+      }
+    },
+  });
+}
+
 export function useCreateCategory() {
   const qc = useQueryClient();
   return useMutation({
